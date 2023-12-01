@@ -11,10 +11,9 @@ This solution is designed to decode a specific type of calibration document. The
 - After extracting the numbers, the program concatenates the first and last number in each line, converts them into a single integer, and then sums up these integers across all lines.
 
 ## Key Components
-1. `DecodeCalibrationDocument`: Decodes the entire document.
-2. `ExtractAndSumNumbers`: Extracts numbers from each line and sums them.
-3. `BuildNumericRegexPattern`: Creates a regex pattern for number extraction.
-4. `ConvertToNumber`: Converts string representations of numbers to integers.
+1`ExtractAndSumNumbers`:  Identifies numbers in each line using regular expressions, supporting both numeric and worded representations.
+2`Sum Calculation`: Concatenates the first and last number in each line, converts them to integers, and computes the overall sum.
+3`ConvertToNumber`: Converts string representations of numbers to integers.
 
 ## Proposed Improvements
 This solution meets the requirements of this advent of code exercise, however, in an attempt to be a better developer. I've though through potential improvements for this solution.
