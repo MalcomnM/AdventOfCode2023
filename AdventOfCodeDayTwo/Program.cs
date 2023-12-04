@@ -3,19 +3,20 @@
 const string filePath = "input.txt";
 var lines = File.ReadAllText(filePath);
 
-int PartOne(string input) 
+int PartOne(string input)
 {
-    return input.Split("\n")
-        .Select(line => Solve(line))
-        .Where(game => game.Red <= 12 && game.Green <= 13 && game.Blue <= 14)
-        .Sum(game => game.Id);
+    return (from line in input.Split("\n")
+            let game = Solve(line)
+            where game.Red <= 12 && game.Green <= 13 && game.Blue <= 14
+            select game.Id
+        ).Sum();
 }
 
 int PartTwo(string input)
 {
-    return input.Split("\n")
-        .Select(line => Solve(line))
-        .Sum(game => game.Red * game.Green * game.Blue);
+    return (from line in input.Split("\n")
+            let game = Solve(line)
+            select game.Red * game.Green * game.Blue).Sum();
 }
 
 
