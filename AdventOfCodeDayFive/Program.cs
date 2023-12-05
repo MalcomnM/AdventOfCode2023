@@ -3,7 +3,7 @@
 const string filePath = "input.txt";
 var inputFile = File.ReadAllText(filePath);
 
-long PartOne(string input)  {
+long PartOne(string input) {
     return Solve(input, ints => ints.Select(v => new Range(v, v)));
 }
 
