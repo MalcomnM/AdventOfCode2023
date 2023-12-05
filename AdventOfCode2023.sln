@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCodeDayThree", "Adv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCodeDayFour", "AdventOfCodeDayFour\AdventOfCodeDayFour.csproj", "{75B0434C-C2C9-4D10-BD48-F4AD7F9E11EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCodeDayFive", "AdventOfCodeDayFive\AdventOfCodeDayFive.csproj", "{A3DBCB3D-0980-4CE7-B604-8593FF232408}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{75B0434C-C2C9-4D10-BD48-F4AD7F9E11EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75B0434C-C2C9-4D10-BD48-F4AD7F9E11EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75B0434C-C2C9-4D10-BD48-F4AD7F9E11EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3DBCB3D-0980-4CE7-B604-8593FF232408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3DBCB3D-0980-4CE7-B604-8593FF232408}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3DBCB3D-0980-4CE7-B604-8593FF232408}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3DBCB3D-0980-4CE7-B604-8593FF232408}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
