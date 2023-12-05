@@ -1,107 +1,84 @@
-﻿using System.Diagnostics;
+﻿using System.Text.RegularExpressions;
 
 const string filePath = "input.txt";
-var input = File.ReadAllLines(filePath);
+var inputFile = File.ReadAllText(filePath);
 
-List<long> ParseSeeds(string[] input)
-{
-    return input[0].Split(' ').Skip(1).Select(long.Parse).ToList();
+long PartOne(string input) {
+    return Solve(input, ints => ints.Select(v => new Range(v, v)));
 }
 
-List<List<(long from, long to, long adjustment)>> ParseMaps(string[] input)
-{
-    var maps = new List<List<(long from, long to, long adjustment)>>();
-    List<(long from, long to, long adjustment)>? currMap = null;
-
-    foreach (var line in input.Skip(2))
-    {
-        if (line.EndsWith(':'))
-        {
-            currMap = new List<(long from, long to, long adjustment)>();
-            continue;
-        }
-        else if (line.Length == 0 && currMap != null)
-        {
-            maps.Add(currMap);
-            currMap = null;
-            continue;
-        }
-
-        var nums = line.Split(' ').Select(long.Parse).ToArray();
-        currMap?.Add((nums[1], nums[1] + nums[2] - 1, nums[0] - nums[1]));
-    }
-
-    if (currMap != null)
-    {
-        maps.Add(currMap);   
-    }
-
-    return maps;
+long PartTwo(string input) {
+    return Solve(input, ints => ints.Chunk(2).Select(v => new Range(v[0], v[0] + v[1] - 1)));
 }
 
-IEnumerable<(long from, long to)> ApplyAdjustments((long from, long to) range, List<(long from, long to, long adjustment)> orderedMap)
-{
-    foreach (var mapping in orderedMap)
-    {
-        if (range.from < mapping.from)
-        {
-            yield return (range.from, Math.Min(range.to, mapping.from - 1));
-            range.from = mapping.from;
-        }
+long Solve(string input, Func<long[], IEnumerable<Range>> parseRanges) {
+    var blocks = input.Split("\n\n");
+    var ranges = parseRanges(ParseInts(blocks[0])).ToArray();
+    var maps = blocks.Skip(1).Select(ParseMap).ToArray();
 
-        if (range.from <= mapping.to)
-        {
-            yield return (range.from + mapping.adjustment, Math.Min(range.to, mapping.to) + mapping.adjustment);
-            range.from = mapping.to + 1;
-        }
-
-        if (range.from > range.to)
-        {
-            break;
-        }
+    for (var i = 0; i < maps.Length; i++) {
+        ranges = ranges.SelectMany(range => Lookup(range, maps[i])).ToArray();
     }
 
-    if (range.from <= range.to)
-    {
-        yield return range;
+    return ranges.Select(r => r.from).Min();
+}
+
+long[] ParseInts(string input)
+{
+    return (
+        from m in Regex.Matches(input, @"\d+")
+        select long.Parse(m.Value)
+    ).ToArray();
+}
+
+Map ParseMap(string input)
+{
+    return new Map(
+        (
+            from line in input.Split("\n").Skip(1)
+            let parts = line.Split(" ").Select(long.Parse).ToArray()
+            let src = new Range(parts[1], parts[2] + parts[1] - 1)
+            let dst = new Range(parts[0], parts[2] + parts[0] - 1)
+            select new MapEntry(src, dst)
+        ).ToArray()
+    );
+}
+
+IEnumerable<Range> Lookup(Range range, Map map) {
+    var q = new Queue<Range>();
+    q.Enqueue(range);
+    while (q.Any()) {
+        range = q.Dequeue();
+        var found = false;
+        foreach (var entry in map.entries) {
+            if (entry.src.from <= range.from && range.to <= entry.src.to) {
+                // entry src contains our range
+                var shift = entry.dst.from - entry.src.from;
+                yield return new Range(range.from + shift, range.to + shift);
+                found = true;
+            } else if (range.from < entry.src.from && entry.src.from <= range.to) {
+                // range contains the begining of the entry
+                q.Enqueue(new Range(range.from, entry.src.from - 1));
+                q.Enqueue(new Range(entry.src.from, range.to));
+                found = true;
+            } else if (range.from < entry.src.to && entry.src.to <= range.to) {
+                // range contains the end of the entry
+                q.Enqueue(new Range(range.from, entry.src.to));
+                q.Enqueue(new Range(entry.src.to + 1, range.to));
+                found = true;
+            }
+        }
+        if (!found) {
+            yield return new Range(range.from, range.to);
+        }
     }
 }
 
-long PartOne(List<long> seeds, List<List<(long from, long to, long adjustment)>> maps)
-{
-    return seeds.Select(seed => 
-    {
-        foreach (var map in maps)
-        {
-            var adjustment = map.FirstOrDefault(item => seed >= item.from && seed <= item.to).adjustment;
-            if (adjustment != 0) seed += adjustment;
-        }
-        return seed;
-    }).Min();
-}
-
-long PartTwo(List<long> seeds, List<List<(long from, long to, long adjustment)>> maps)
-{
-    var ranges = Enumerable.Range(0, seeds.Count / 2)
-        .Select(i => (from: seeds[i * 2], to: seeds[i * 2] + seeds[i * 2 + 1] - 1))
-        .ToList();
-
-    foreach (var map in maps)
-    {
-        var orderedMap = map.OrderBy(x => x.from).ToList();
-        ranges = ranges.SelectMany(range => ApplyAdjustments(range, orderedMap)).ToList();
-    }
-
-    return ranges.Min(r => r.from);
-}
 
 try
 {
-    var seeds = ParseSeeds(input);
-    var maps = ParseMaps(input);
-
-    var partOneSolution = PartOne(seeds, maps);
-    var partTwoSolution = PartTwo(seeds, maps);
+    var partOneSolution = PartOne(inputFile);
+    var partTwoSolution = PartTwo(inputFile);
 
     Console.WriteLine($"Part One: {partOneSolution}");
     Console.WriteLine($"Part Two:  {partTwoSolution}");
@@ -110,3 +87,8 @@ catch (Exception ex)
 {
     Console.WriteLine($"Error: {ex.Message}");
 }
+
+
+record MapEntry(Range src, Range dst);
+record Map(MapEntry[] entries);
+record Range(long from, long to);
