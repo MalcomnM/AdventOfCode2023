@@ -39,34 +39,6 @@ List<List<(long from, long to, long adjustment)>> ParseMaps(string[] input)
     return maps;
 }
 
-long PartOne(List<long> seeds, List<List<(long from, long to, long adjustment)>> maps)
-{
-    return seeds.Select(seed => 
-    {
-        foreach (var map in maps)
-        {
-            var adjustment = map.FirstOrDefault(item => seed >= item.from && seed <= item.to).adjustment;
-            if (adjustment != 0) seed += adjustment;
-        }
-        return seed;
-    }).Min();
-}
-
-long PartTwo(List<long> seeds, List<List<(long from, long to, long adjustment)>> maps)
-{
-    var ranges = Enumerable.Range(0, seeds.Count / 2)
-        .Select(i => (from: seeds[i * 2], to: seeds[i * 2] + seeds[i * 2 + 1] - 1))
-        .ToList();
-
-    foreach (var map in maps)
-    {
-        var orderedMap = map.OrderBy(x => x.from).ToList();
-        ranges = ranges.SelectMany(range => ApplyAdjustments(range, orderedMap)).ToList();
-    }
-
-    return ranges.Min(r => r.from);
-}
-
 IEnumerable<(long from, long to)> ApplyAdjustments((long from, long to) range, List<(long from, long to, long adjustment)> orderedMap)
 {
     foreach (var mapping in orderedMap)
@@ -93,6 +65,34 @@ IEnumerable<(long from, long to)> ApplyAdjustments((long from, long to) range, L
     {
         yield return range;
     }
+}
+
+long PartOne(List<long> seeds, List<List<(long from, long to, long adjustment)>> maps)
+{
+    return seeds.Select(seed => 
+    {
+        foreach (var map in maps)
+        {
+            var adjustment = map.FirstOrDefault(item => seed >= item.from && seed <= item.to).adjustment;
+            if (adjustment != 0) seed += adjustment;
+        }
+        return seed;
+    }).Min();
+}
+
+long PartTwo(List<long> seeds, List<List<(long from, long to, long adjustment)>> maps)
+{
+    var ranges = Enumerable.Range(0, seeds.Count / 2)
+        .Select(i => (from: seeds[i * 2], to: seeds[i * 2] + seeds[i * 2 + 1] - 1))
+        .ToList();
+
+    foreach (var map in maps)
+    {
+        var orderedMap = map.OrderBy(x => x.from).ToList();
+        ranges = ranges.SelectMany(range => ApplyAdjustments(range, orderedMap)).ToList();
+    }
+
+    return ranges.Min(r => r.from);
 }
 
 try
